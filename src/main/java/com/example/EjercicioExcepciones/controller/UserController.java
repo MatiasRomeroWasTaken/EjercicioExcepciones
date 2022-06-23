@@ -2,6 +2,7 @@ package com.example.EjercicioExcepciones.controller;
 
 import com.example.EjercicioExcepciones.dtos.ResponseDTO;
 import com.example.EjercicioExcepciones.dtos.UserDTO;
+import com.example.EjercicioExcepciones.mapper.UserMapper;
 import com.example.EjercicioExcepciones.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class UserController {
 
     @PostMapping ("/api/user")
     public ResponseEntity<ResponseDTO> createUser(@RequestBody UserDTO userDTO){
-        return new ResponseEntity<ResponseDTO>(new ResponseDTO("Se ha creado el usuario"),HttpStatus.CREATED);
+
+        return new ResponseEntity<ResponseDTO>(userService.createUser(UserMapper.convertToModel(userDTO)),HttpStatus.CREATED);
     }
 }
