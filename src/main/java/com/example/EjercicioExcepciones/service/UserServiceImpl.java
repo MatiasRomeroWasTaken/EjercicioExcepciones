@@ -3,10 +3,7 @@ package com.example.EjercicioExcepciones.service;
 
 import com.example.EjercicioExcepciones.dtos.ResponseDTO;
 import com.example.EjercicioExcepciones.entities.UserEntity;
-import com.example.EjercicioExcepciones.exception.NoConnectionEstablishedNoSQLBD;
-import com.example.EjercicioExcepciones.exception.NoConnectionEstablishedSQLBD;
-import com.example.EjercicioExcepciones.exception.NoConnectionException;
-import com.example.EjercicioExcepciones.exception.SavingUserException;
+import com.example.EjercicioExcepciones.exception.*;
 import com.example.EjercicioExcepciones.mapper.UserMapper;
 import com.example.EjercicioExcepciones.models.UserModel;
 import com.example.EjercicioExcepciones.repository.UserRepository;
@@ -34,6 +31,7 @@ public class UserServiceImpl implements UserService{
         try {
             if (userRepository.findByUsernameAndPassword(userEntity.getUsername(), userEntity.getPassword())) {
                 MailSender.sendWarningMail();
+                throw new UserAlreadyCreatedException("El usuario ya se encuentra registrado");
             } else {
                 userRepository = new UserRepositoryBdNoSQLImpl();
                 boolean isSaved = userRepository.save(userEntity.getUsername(), userEntity.getPassword());
@@ -42,6 +40,7 @@ public class UserServiceImpl implements UserService{
                 }
                 SlackSender.sendMessage(userModel);
                 QueueManager.sendMessage(userModel);
+                return new ResponseDTO("Se completo el proceso");
             }
         }
         catch (NoConnectionEstablishedSQLBD e){
@@ -52,8 +51,10 @@ public class UserServiceImpl implements UserService{
             e.printStackTrace();
             throw new NoConnectionException("No se pudo establecer una conexion con el servidor, intente nuevamente");
         }
-        FileRecorder.write("Create user operation "+ LocalDateTime.now());
-        return new ResponseDTO("Se ha creado el user");
+        finally {
+            FileRecorder.write("Create user operation "+ LocalDateTime.now());
+        }
+
     }
 
 }
