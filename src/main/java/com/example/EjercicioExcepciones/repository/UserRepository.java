@@ -1,7 +1,8 @@
 package com.example.EjercicioExcepciones.repository;
 
-import org.springframework.stereotype.Repository;
+import com.example.EjercicioExcepciones.exception.NoConnectionEstablishedSQLBD;
 
-@Repository
-public class UserRepository {
+public interface UserRepository {
+    boolean findByUsernameAndPassword(String username, String password) throws NoConnectionEstablishedSQLBD;
+    boolean save(String username, String password);
 }
